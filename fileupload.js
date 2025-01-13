@@ -1,44 +1,25 @@
-class FileUploader {
-  constructor(apiEndpoint) {
-    this.apiEndpoint = apiEndpoint;
-  }
+importScripts('https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js');
+importScripts('https://www.gstatic.com/firebasejs/11.1.0/firebase-messaging.js');
 
-  async uploadFile(file, onProgress) {
-    const formData = new FormData();
-    formData.append('file', file);
+firebase.initializeApp({
+    apiKey: "AIzaSyD8Zj0H9tJ7oC1MjcM0JKhh4n_bCHJx7BY",
+    authDomain: "myapp-116ff.firebaseapp.com",
+    projectId: "myapp-116ff",
+    storageBucket: "myapp-116ff.firebasestorage.app",
+    messagingSenderId: "613143540780",
+    appId: "1:613143540780:web:71fa41e13178a7ee36cd89",
+    measurementId: "G-97DM8QJ75G"
+});
 
-    try {
-      const response = await fetch(this.apiEndpoint, {
-        method: 'POST',
-        body: formData
-      });
+const messaging = firebase.messaging();
 
-      if (!response.ok) {
-        throw new Error(`Failed to upload file: ${response.statusText}`);
-      }
+messaging.setBackgroundMessageHandler(function(payload) {
+    console.log('Received background message ', payload);
+    const notificationTitle = 'Background Message Title';
+    const notificationOptions = {
+        body: 'Background Message body.',
+        icon: '/firebase-logo.png'
+    };
 
-      const data = await response.json();
-      return data.url;
-    } catch (error) {
-      throw error;
-    }
-  }
-}
-
-// مثال على كيفية استخدام المكتبة
-const fileInput = document.querySelector('#fileInput');
-const h1 = document.querySelector('h1');
-fileInput.addEventListener('change', async (event) => {
-  const file = event.target.files[0];
-  const uploader = new FileUploader('https://raw.githubusercontent.com/NULLNOACCNO/Hhh/refs/heads/main/server.js'); // تأكد من أن endpoint صحيح
-
-  try {
-    h1.textContent = 'File uploading...';
-    const fileUrl = await uploader.uploadFile(file, (progress) => {
-      h1.textContent = `File uploading... ${progress}%`;
-    });
-    h1.innerHTML = `File uploaded: <br/><br/><a href="${fileUrl}" target="_blank">${fileUrl}</a>`;
-  } catch (error) {
-    h1.textContent = `Please try another file: ${error.message}`;
-  }
+    return self.registration.showNotification(notificationTitle, notificationOptions);
 });
